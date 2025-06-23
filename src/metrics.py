@@ -89,6 +89,28 @@ def calculate_rel_mode_shift(t_vec, distr1, distr2, abs_value=True):
     
     return rel_mode_shift
 
+def calculate_mode_shift(t_vec, distr1, distr2, abs_value=True):
+    """
+    Calculate the mode shift between two distributions.
+    
+    Parameters:
+    t_vec (np.ndarray): Vector of tMRCA values.
+    distr1 (np.ndarray): First distribution (e.g., posterior).
+    distr2 (np.ndarray): Second distribution (e.g., likelihood).
+    
+    Returns:
+    float: Mode shift.
+    """
+    
+    mode1 = t_vec[np.argmax(distr1)]
+    mode2 = t_vec[np.argmax(distr2)]
+    
+    mode_shift = mode1 - mode2
+    if abs_value:
+        mode_shift = np.abs(mode_shift)
+    
+    return mode_shift
+
 def calculate_rel_mean_shift(t_vec, distr1, distr2, abs_value=True):
     """
     Calculate the relative mean shift between two distributions.

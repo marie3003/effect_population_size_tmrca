@@ -1,4 +1,5 @@
-from math import exp, factorial
+from math import exp, factorial, lgamma
+import numpy as np
 
 def likelihood_tMRCA_mutations(k_mut, mu, t_MRCA, L = 100):
     """
@@ -16,13 +17,18 @@ def likelihood_tMRCA_mutations(k_mut, mu, t_MRCA, L = 100):
     """
    
 
-    # Calculate the expected number of mutations
     expected_mutations = 2 * mu * L * t_MRCA
-    
-    # Calculate the likelihood using Poisson distribution
-    likelihood = (expected_mutations ** k_mut) * exp(-expected_mutations) / factorial(k_mut)
-    
-    return likelihood
+
+    if expected_mutations <= 0:
+        return 0.0
+
+    # Log-Poisson likelihood: log(P) = k*log(λ) - λ - log(k!)
+    log_likelihood = (
+        k_mut * np.log(expected_mutations)
+        - expected_mutations
+        - lgamma(k_mut + 1)  # log(k!)
+    )
+    return np.exp(log_likelihood)
 
 
 def coalescent_prior(t_MRCA, N):
