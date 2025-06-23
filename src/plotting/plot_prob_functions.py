@@ -105,7 +105,7 @@ def plot_tMRCA_constN(N_values, alpha_values, base_mu, base_k, t_max, L, time_sc
     plt.show()
 
 
-def plot_tMRCA_expN_present(mu, L, k_mut, N_present, beta_vec, max_tmrca, N = None, evaluation = 'likelihood', plot_comparison_to_const = True):
+def plot_tMRCA_expN_present(mu, L, k_mut, N_present, beta_vec, max_tmrca, N = None, plot_comparison_to_const = True, time_scale = "days"):
     """
     Plot the prior, likelihood, and posterior of tMRCA for different exponential growth rates (β).
     
@@ -160,7 +160,7 @@ def plot_tMRCA_expN_present(mu, L, k_mut, N_present, beta_vec, max_tmrca, N = No
         
         ax.set_title(f"β = {beta}")
 
-        ax.set_xlabel("tMRCA (generations)")
+        ax.set_xlabel(f"tMRCA [{time_scale}]")
         if col == 0:
             ax.set_ylabel("Probability (normalized)")
         ax.grid(True)
@@ -168,17 +168,16 @@ def plot_tMRCA_expN_present(mu, L, k_mut, N_present, beta_vec, max_tmrca, N = No
 
         # Compares posterior based on exponential growth prior to likelihood (uniform prior)
 
-        if evaluation == 'likelihood':
-            rel_w_dist = calculate_rel_wasserstein_dist(t_values, posteriors_expN, likelihoods)
-            rel_mean_shift = calculate_rel_mean_shift(t_values, posteriors_expN, likelihoods, abs_value=False)
-            rel_mode_shift = calculate_rel_mode_shift(t_values, posteriors_expN, likelihoods, abs_value=False)
-        elif evaluation == 'posterior_const_prior':
-            rel_w_dist = calculate_rel_wasserstein_dist(t_values, posteriors_expN, posteriors)
-            rel_mean_shift = calculate_rel_mean_shift(t_values, posteriors_expN, posteriors, abs_value=False)
-            rel_mode_shift = calculate_rel_mode_shift(t_values, posteriors_expN, posteriors, abs_value=False)
+
+        rel_w_dist = calculate_rel_wasserstein_dist(t_values, posteriors_expN, likelihoods)
+        #rel_mean_shift = calculate_rel_mean_shift(t_values, posteriors_expN, likelihoods, abs_value=False)
+        rel_mode_shift = calculate_rel_mode_shift(t_values, posteriors_expN, likelihoods, abs_value=False)
+        reverse_omega = calculate_coalescent_information_ratio_at_MAP(N_present, mu, L, posteriors_expN, t_values, beta=beta, population_model='exponential', reverse_scale=True)
+        mode_shift = calculate_mode_shift(t_values, posteriors_expN, likelihoods, abs_value=False)
+
         ax.text(
             0.05, 0.95,
-            f"W. dist. = {rel_w_dist:.2f}\nRel. mean shift = {rel_mean_shift:.2f}\nRel. mode shift = {rel_mode_shift:.2f}",
+            f"W. dist. = {rel_w_dist:.2f}\n1 - Ω = {reverse_omega:.2f}\nRel. mode shift = {rel_mode_shift:.2f}\n Mode shift = {mode_shift:.2f}",
             transform=ax.transAxes,
             fontsize=9,
             verticalalignment='top',
@@ -188,7 +187,7 @@ def plot_tMRCA_expN_present(mu, L, k_mut, N_present, beta_vec, max_tmrca, N = No
     plt.suptitle(f"Prior, Likelihood, and Posterior of tMRCA for Different Exponential Growth Rates (β) with N_present = {int(N_present)}")
     plt.show()
 
-def plot_tMRCA_expN(mu, L, k_mut, t_present, N_0, beta_vec, max_tmrca, varying_N = False, N = None, N_vec = None, evaluation = 'likelihood'):
+def plot_tMRCA_expN(mu, L, k_mut, t_present, N_0, beta_vec, max_tmrca, varying_N = False, N = None, N_vec = None, evaluation = 'likelihood', time_scale = "days"):
     """
     Plot the prior, likelihood, and posterior of tMRCA for different exponential growth rates (β).
     
@@ -244,7 +243,7 @@ def plot_tMRCA_expN(mu, L, k_mut, t_present, N_0, beta_vec, max_tmrca, varying_N
         
         ax.set_title(f"β = {beta}, N = {N_col:.2f}" if varying_N else f"β = {beta}")
 
-        ax.set_xlabel("tMRCA (generations)")
+        ax.set_xlabel(f"tMRCA [{time_scale}]")
         if col == 0:
             ax.set_ylabel("Probability (normalized)")
         ax.grid(True)
@@ -275,7 +274,7 @@ def plot_tMRCA_expN(mu, L, k_mut, t_present, N_0, beta_vec, max_tmrca, varying_N
     plt.show()
 
 
-def plot_tMRCA_bottleneck(mu, L, k_mut, N_high, N_low_vec, t_bottleneck_start, t_bottleneck_end_vec, t_max):
+def plot_tMRCA_bottleneck(mu, L, k_mut, N_high, N_low_vec, t_bottleneck_start, t_bottleneck_end_vec, t_max, time_scale="days"):
     """
     Plot the prior, likelihood, and posterior of tMRCA for varying bottleneck depths and durations.
     
@@ -293,7 +292,7 @@ def plot_tMRCA_bottleneck(mu, L, k_mut, N_high, N_low_vec, t_bottleneck_start, t
 
     t_values = np.linspace(0, t_max, t_max)
     
-    fig, axs = plt.subplots(len(N_low_vec), len(t_bottleneck_end_vec), figsize=(20, 12), sharex=True, sharey=True)
+    fig, axs = plt.subplots(len(N_low_vec), len(t_bottleneck_end_vec), figsize=(20, 12))
 
     for row, N_low in enumerate(N_low_vec):
         for col, t_bottleneck_end in enumerate(t_bottleneck_end_vec):
@@ -324,7 +323,7 @@ def plot_tMRCA_bottleneck(mu, L, k_mut, N_high, N_low_vec, t_bottleneck_start, t
 
 
             if row == len(N_low_vec) - 1:
-                ax.set_xlabel("tMRCA (generations)")
+                ax.set_xlabel(f"tMRCA [{time_scale}]")
             if col == 0:
                 ax.set_ylabel(f"N_low = {N_low}")
             if row == 0:
@@ -332,12 +331,19 @@ def plot_tMRCA_bottleneck(mu, L, k_mut, N_high, N_low_vec, t_bottleneck_start, t
 
             rel_w_dist = calculate_rel_wasserstein_dist(t_values, posteriors_bottleneck, likelihoods)
             rel_w2_dist = calculate_rel_wasserstein2_dist(t_values, posteriors_bottleneck, likelihoods)
-            rel_mean_shift = calculate_rel_mean_shift(t_values, posteriors_bottleneck, likelihoods, abs_value=False)
+            #rel_mean_shift = calculate_rel_mean_shift(t_values, posteriors_bottleneck, likelihoods, abs_value=False)
             rel_mode_shift = calculate_rel_mode_shift(t_values, posteriors_bottleneck, likelihoods, abs_value=False)
+            mode_shift = calculate_mode_shift(t_values, posteriors_bottleneck, likelihoods, abs_value=False)
+            reverse_omega = calculate_coalescent_information_ratio_at_MAP(
+                N_high, mu, L, posteriors_bottleneck, t_values,
+                N_low=N_low, t_bottleneck_start=t_bottleneck_start,
+                t_bottleneck_end=t_bottleneck_end, population_model='bottleneck',
+                reverse_scale=True
+            )
 
             ax.text(
                 0.05, 0.95,
-                f"W. dist. = {rel_w_dist:.2f}\nW2. dist. = {rel_w2_dist:.2f} \nRel. mean shift = {rel_mean_shift:.2f}\nRel. mode shift = {rel_mode_shift:.2f}",
+                f"W. dist. = {rel_w_dist:.2f}\nW2. dist. = {rel_w2_dist:.2f} \n1 - Ω= {reverse_omega:.2f}\nRel. mode shift = {rel_mode_shift:.2f}\nMode shift = {mode_shift:.2f}",
                 transform=ax.transAxes,
                 fontsize=9,
                 verticalalignment='top',
