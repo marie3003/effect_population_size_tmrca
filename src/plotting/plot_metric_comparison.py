@@ -239,7 +239,7 @@ def plot_error_heatmaps(exp_evaluation_df, alpha_fixed, title):
     plt.show()
 
 
-def plot_error_metrics_by_beta(exp_evaluation_df, title):
+def plot_error_metrics_by_beta(exp_evaluation_df, title, neg = False):
 
     # Define custom colors for the error metrics
     colors = [
@@ -278,11 +278,18 @@ def plot_error_metrics_by_beta(exp_evaluation_df, title):
 
             # Plot each error metric
             for k, metric in enumerate(error_metrics):
-                ax.plot(df_N["beta"], df_N[metric], marker='o',
+                if neg == False:
+                    ax.plot(df_N["beta"], df_N[metric], marker='o',
+                        label=metric, color=colors[k % len(colors)])
+                else:
+                    ax.plot(-df_N["beta"], df_N[metric], marker='o',
                         label=metric, color=colors[k % len(colors)])
 
             ax.axhline(0, color='black', linestyle='--', linewidth=1)
-            ax.set_xlabel("beta", fontsize=12)
+            if neg == False:
+                ax.set_xlabel("beta", fontsize=12)
+            else:
+                ax.set_xlabel("-beta", fontsize=12)
             ax.set_xscale("log")
 
             if j == 0:
@@ -495,4 +502,258 @@ def plot_bottleneck_error_metrics_by_duration(bottleneck_df, title):
                loc='upper right', bbox_to_anchor=(0.9, 1), borderaxespad=0)
 
     fig.suptitle(title, fontsize=22)
+    plt.show()
+
+
+################ Pathogen comparison ################
+
+def plot_metrics_by_pathogen_const(evaluation_df, error_metrics, title):
+    """
+    Plot all prior influence error metrics over N for each pathogen in separate subplots (columns).
+    
+    Parameters:
+    - evaluation_df (pd.DataFrame): DataFrame with columns ['pathogen', 'N', ...metrics...]
+    - error_metrics (list): List with all error metrics to plot.
+    - title (str): Title of the full plot.
+    """
+
+    colors = [
+        "#a6444f",  # reddish
+        "#397398",  # dark blue
+        "#80557e",  # purple
+        "#b5d2f2",  # light blue
+        "#d991b4",  # pink
+        "#57a8b8",  # teal
+        "#7394c2",  # mid blue
+        "#7a7a7a"   # gray
+    ]
+
+    # Extract all metric columns (skip first two: pathogen, N)
+    pathogens = sorted(evaluation_df["pathogen"].unique())
+    num_pathogens = len(pathogens)
+
+    # Set up subplots
+    fig, axes = plt.subplots(1, num_pathogens, figsize=(7 * num_pathogens, 6), sharey = True)
+
+    # Ensure axes is iterable even with 1 pathogen
+    if num_pathogens == 1:
+        axes = [axes]
+
+    for i, pathogen_name in enumerate(pathogens):
+        ax = axes[i]
+        df_pathogen = evaluation_df[evaluation_df["pathogen"] == pathogen_name]
+
+        # Plot each error metric
+        for j, metric in enumerate(error_metrics):
+            ax.plot(df_pathogen["N"], df_pathogen[metric],
+                    marker='o', label=metric, color=colors[j % len(colors)])
+
+        ax.set_xscale("log")
+        ax.set_title(f"{pathogen_name}", fontsize=16)
+        ax.set_xlabel("N", fontsize=14)
+        if i == 0:
+            ax.set_ylabel("Error metric value", fontsize=14)
+
+        ax.legend(loc='upper right',
+                  fontsize=10, title="Metrics", title_fontsize='12')
+        ax.grid(True)
+
+    fig.suptitle(title, fontsize=20)
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.85)
+    plt.show()
+
+def plot_error_metrics_by_beta_pathogen(exp_evaluation_df, error_metrics, title, neg = False):
+    """
+    Plot prior influence metrics over beta for different N_present values in separate subplots.
+
+    Parameters:
+    - exp_evaluation_df (pd.DataFrame): DataFrame with columns ['N_present', 'beta', ...metrics...]
+    - error_metrics (list): Error metrics to show in plot.
+    - title (str): Title for the entire plot figure.
+    """
+
+    colors = [
+        "#a6444f",  # reddish
+        "#80557e",  # purple
+        "#d991b4",  # pink
+        "#b5d2f2",  # light blue
+        "#7394c2",  # mid blue
+        "#397398",  # dark blue
+        "#57a8b8",  # teal
+        "#7a7a7a"   # gray
+    ]
+
+    # Extract metric columns (skip N_present and beta)
+    Ns = sorted(exp_evaluation_df["N_present"].unique())
+    num_N = len(Ns)
+
+    # Create horizontal subplots (one per N)
+    fig, axes = plt.subplots(1, num_N, figsize=(6 * num_N, 5), sharey=True)
+
+    if num_N == 1:
+        axes = [axes]
+
+    for j, N_val in enumerate(Ns):
+        ax = axes[j]
+        df_N = exp_evaluation_df[exp_evaluation_df["N_present"] == N_val].copy()
+        df_N.sort_values(by="beta", inplace=True)
+
+        for k, metric in enumerate(error_metrics):
+            if neg:
+                ax.plot(-df_N["beta"], df_N[metric], marker='o',
+                        label=metric, color=colors[k % len(colors)])
+            else:
+                ax.plot(df_N["beta"], df_N[metric], marker='o',
+                    label=metric, color=colors[k % len(colors)])
+
+        ax.axhline(0, color='black', linestyle='--', linewidth=1)
+        if neg:
+            ax.set_xlabel("-Beta", fontsize=12)
+        else:
+            ax.set_xlabel("Beta", fontsize=12)
+        ax.set_xscale("log")
+        ax.grid(True)
+        ax.set_title(f"N = {int(N_val)}", fontsize=14)
+        if j == 0:
+            ax.set_ylabel("Error Metric Value", fontsize=12)
+        ax.legend(title="Metric", fontsize=9, title_fontsize=10, loc="upper left")
+
+    fig.suptitle(title, fontsize=22)
+    plt.show()
+
+def plot_mode_shift_pathogen_summary(df, title):
+    # Define custom colors for each pathogen
+    colors = [
+        "#a6444f",  # reddish
+        "#80557e",  # purple
+        "#57a8b8",  # teal
+        "#7394c2",  # mid blue
+        "#7a7a7a"   # gray
+    ]
+
+    # Copy and prepare DataFrame
+    plot_df = df.copy()
+    pathogens = sorted(plot_df["pathogen"].unique())
+
+    # Initialize plot
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    handles = []
+    labels = []
+
+    for i, pathogen in enumerate(pathogens):
+        df_path = plot_df[plot_df["pathogen"] == pathogen]
+        df_path = df_path.sort_values("N")  # Ensure sorted by N
+
+        ## shift day time scale to years
+        if pathogen == "Influenza":
+            df_path["mode_shift"] = df_path["mode_shift"] / 365
+
+        line, = ax.plot(
+            df_path["N"],
+            df_path["mode_shift"],
+            marker="o",
+            label=pathogen,
+            color=colors[i % len(colors)]
+        )
+        handles.append(line)
+        labels.append(pathogen)
+
+    ax.set_xscale("log")
+    ax.set_xlabel("Population size N (log scale)", fontsize=12)
+    ax.set_ylabel("Mode shift [years]", fontsize=12)
+    ax.set_title(title, fontsize=14)
+    ax.grid(True, which='both', ls='--', linewidth=0.5)
+
+    # Add legend
+    ax.legend(handles, labels, title="Pathogen", fontsize=10, title_fontsize=11)
+
+    plt.show()
+
+
+def plot_metric_summary(df, df_exp, df_bottleneck, title, metric="mode_shift"):
+    # Define custom colors
+    colors = [
+        "#a6444f", "#80557e", "#57a8b8", "#7394c2", "#7a7a7a"
+    ]
+
+    # Prepare DataFrames
+    plot_df = df.copy()
+    exp_df = df_exp.copy()
+    bottleneck_df = df_bottleneck.copy()
+    pathogens = sorted(plot_df["pathogen"].unique())
+    Ns = sorted(exp_df["N_present"].unique())
+    N_lows = sorted(bottleneck_df["N_low"].unique())
+
+    # Create subplots
+    fig, axes = plt.subplots(1, 3, figsize=(21, 6), sharey=False)
+    ax, ax2, ax3 = axes
+
+    # LEFT: Constant population model
+    handles, labels = [], []
+    for i, pathogen in enumerate(pathogens):
+        df_path = plot_df[plot_df["pathogen"] == pathogen].sort_values("N")
+        if pathogen == "Influenza":
+            df_path[metric] = df_path[metric] / 365  # convert to years
+
+        line, = ax.plot(
+            df_path["N"],
+            df_path[metric],
+            marker="o",
+            label=pathogen,
+            color=colors[i % len(colors)]
+        )
+        handles.append(line)
+        labels.append(pathogen)
+
+    ax.set_xscale("log")
+    ax.set_xlabel("Population size N (log scale)", fontsize=12)
+    ax.set_ylabel(f"{metric} [years]", fontsize=12)
+    ax.set_title("Constant population", fontsize=14)
+    ax.grid(True, which='both', ls='--', linewidth=0.5)
+    ax.legend(handles, labels, title="Pathogen", fontsize=10, title_fontsize=11)
+    ax.axhline(0, color="black", linestyle="dotted", linewidth=1)
+
+    # MIDDLE: Exponential population model
+    for i, N in enumerate(Ns):
+        df_N = exp_df[exp_df["N_present"] == N].sort_values("beta")
+        ax2.plot(
+            df_N["beta"],
+            df_N[metric],
+            marker="o",
+            label=f"N = {N}",
+            color=colors[i % len(colors)]
+        )
+
+    ax2.set_xscale("log")
+    ax2.set_xlabel("Transmission rate β (log scale)", fontsize=12)
+    ax2.set_ylabel(f"{metric} [years]", fontsize=12)
+    ax2.set_title("Exponentially growing population", fontsize=14)
+    ax2.grid(True, which='both', ls='--', linewidth=0.5)
+    ax2.legend(title="Population size at present", fontsize=10, title_fontsize=11)
+    ax2.axhline(0, color="black", linestyle="dotted", linewidth=1)
+
+    # RIGHT: Bottleneck model
+    bottleneck_df["bottleneck_duration"] = bottleneck_df["t_bottleneck_end"] - bottleneck_df["t_bottleneck_start"]
+    for i, N_low in enumerate(N_lows):
+        df_Nlow = bottleneck_df[bottleneck_df["N_low"] == N_low].sort_values("t_bottleneck_end")
+        ax3.plot(
+            df_Nlow["bottleneck_duration"],
+            df_Nlow[metric],
+            marker="o",
+            label=f"N_low = {N_low}",
+            color=colors[i % len(colors)]
+        )
+
+    ax3.set_xlabel("Bottleneck duration [years]", fontsize=12)
+    ax3.set_ylabel(f"{metric} [years]", fontsize=12)
+    ax3.set_title("Population with bottleneck", fontsize=14)
+    ax3.grid(True, which='both', ls='--', linewidth=0.5)
+    ax3.legend(title="Bottleneck size N_low", fontsize=10, title_fontsize=11)
+    ax3.axhline(0, color="black", linestyle="dotted", linewidth=1)
+
+    # Set overall title
+    fig.suptitle(title, fontsize=16)
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()

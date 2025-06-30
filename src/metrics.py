@@ -166,6 +166,38 @@ def calculate_rel_median_shift(t_vec, distr1, distr2, abs_value=True):
 
     return rel_median_shift
 
+def calculate_median_shift(t_vec, distr1, distr2, abs_value=True):
+    """
+    Calculate the median shift between two distributions.
+    
+    Parameters:
+    t_vec (np.ndarray): Vector of tMRCA values.
+    distr1 (np.ndarray): First distribution (e.g., posterior).
+    distr2 (np.ndarray): Second distribution (e.g., likelihood).
+    
+    Returns:
+    float: Median shift.
+    """
+
+    # Normalize the distributions
+    distr1 = distr1 / np.trapezoid(distr1, t_vec)
+    distr2 = distr2 / np.trapezoid(distr2, t_vec)
+
+    # Compute CDFs using cumulative trapezoid integration
+    cdf1 = cumulative_trapezoid(distr1, t_vec, initial=0)
+    cdf2 = cumulative_trapezoid(distr2, t_vec, initial=0)
+
+    # Find medians where CDF crosses 0.5
+    median1 = np.interp(0.5, cdf1, t_vec)
+    median2 = np.interp(0.5, cdf2, t_vec)
+
+    median_shift = median1 - median2
+
+    if abs_value:
+        median_shift = np.abs(median_shift)
+
+    return median_shift
+
 def calculate_rel_mean_shift_const(N, mu, L, abs_value=True):
     """
     Calculate the relative mean shift between two distributions, assuming constant population size.

@@ -3,7 +3,7 @@ import numpy as np
 import inspect
 
 from src.prob_functions import likelihood_tMRCA_mutations, coalescent_prior, coalescent_prior_expN_present, coalescent_prior_expN, coalescent_prior_bottleneck
-from src.metrics import calculate_coalescent_information_ratio_at_MAP, calculate_rel_mean_shift, calculate_rel_mean_shift_const, calculate_rel_mode_shift, calculate_rel_median_shift, calculate_rel_wasserstein_dist, calculate_rel_wasserstein2_dist, calculate_mode_shift
+from src.metrics import calculate_coalescent_information_ratio_at_MAP, calculate_rel_mean_shift, calculate_rel_mean_shift_const, calculate_rel_mode_shift, calculate_rel_median_shift, calculate_rel_wasserstein_dist, calculate_rel_wasserstein2_dist, calculate_mode_shift, calculate_median_shift
 
 
 def plot_tMRCA_constN(N_values, alpha_values, base_mu, base_k, t_max, L, time_scale="days", metrics=None, title=None):
@@ -123,11 +123,11 @@ def plot_tMRCA_expN_present(mu, L, k_mut, N_present, beta_vec, max_tmrca, N = No
     t_values = np.linspace(0, max_tmrca, max_tmrca)
 
     colors = [
-        "#a6444f",  # prior constant
+        "#b7b5b5",  # prior constant
         "#397398",  # likelihood
-        "#80557e",  # posterior constant
-        "#b5d2f2",  # prior expN
-        "#d991b4",  # posterior expN
+        "#6c6c6c",  # posterior constant
+        "#a6444f",  # prior expN
+        "#80557e",  # posterior expN
     ]
 
     # Set up subplots
@@ -205,11 +205,11 @@ def plot_tMRCA_expN(mu, L, k_mut, t_present, N_0, beta_vec, max_tmrca, varying_N
     t_values = np.linspace(0, max_tmrca, max_tmrca)
 
     colors = [
-        "#a6444f",  # prior constant
+        "#b7b5b5",  # prior constant
         "#397398",  # likelihood
-        "#80557e",  # posterior constant
-        "#b5d2f2",  # prior expN
-        "#d991b4",  # posterior expN
+        "#6c6c6c",  # posterior constant
+        "#a6444f",  # prior expN
+        "#80557e",  # posterior expN
     ]
 
     # Set up subplots
@@ -287,12 +287,19 @@ def plot_tMRCA_bottleneck(mu, L, k_mut, N_high, N_low_vec, t_bottleneck_start, t
     t_bottleneck_start (int): Start time of the bottleneck backwards in time.
     t_bottleneck_end_vec (list): List of end times for the bottleneck backwards in time.
     t_max (int): Maximum tMRCA to consider.
-    """
-    colors = ["#a6444f", "#397398", "#80557e", "#b5d2f2", "#d991b4"]
+    """   
+    colors = [
+        "#b7b5b5",  # prior constant
+        "#397398",  # likelihood
+        "#6c6c6c",  # posterior constant
+        "#a6444f",  # prior bottleneck
+        "#80557e",  # posterior bottleneck
+    ]
 
     t_values = np.linspace(0, t_max, t_max)
     
-    fig, axs = plt.subplots(len(N_low_vec), len(t_bottleneck_end_vec), figsize=(20, 12))
+    nrows, ncols = len(N_low_vec), len(t_bottleneck_end_vec)
+    fig, axs = plt.subplots(nrows, ncols, figsize=(5 * ncols, 4.5 * nrows), squeeze=False)
 
     for row, N_low in enumerate(N_low_vec):
         for col, t_bottleneck_end in enumerate(t_bottleneck_end_vec):
@@ -334,6 +341,7 @@ def plot_tMRCA_bottleneck(mu, L, k_mut, N_high, N_low_vec, t_bottleneck_start, t
             #rel_mean_shift = calculate_rel_mean_shift(t_values, posteriors_bottleneck, likelihoods, abs_value=False)
             rel_mode_shift = calculate_rel_mode_shift(t_values, posteriors_bottleneck, likelihoods, abs_value=False)
             mode_shift = calculate_mode_shift(t_values, posteriors_bottleneck, likelihoods, abs_value=False)
+            median_shift = calculate_median_shift(t_values, posteriors_bottleneck, likelihoods, abs_value=False)
             reverse_omega = calculate_coalescent_information_ratio_at_MAP(
                 N_high, mu, L, posteriors_bottleneck, t_values,
                 N_low=N_low, t_bottleneck_start=t_bottleneck_start,
@@ -343,7 +351,7 @@ def plot_tMRCA_bottleneck(mu, L, k_mut, N_high, N_low_vec, t_bottleneck_start, t
 
             ax.text(
                 0.05, 0.95,
-                f"W. dist. = {rel_w_dist:.2f}\nW2. dist. = {rel_w2_dist:.2f} \n1 - Ω= {reverse_omega:.2f}\nRel. mode shift = {rel_mode_shift:.2f}\nMode shift = {mode_shift:.2f}",
+                f"W. dist. = {rel_w_dist:.2f}\nW2. dist. = {rel_w2_dist:.2f} \n1 - Ω= {reverse_omega:.2f}\nRel. mode shift = {rel_mode_shift:.2f}\nMode shift = {mode_shift:.2f}\nMedian shift = {median_shift:.2f}",
                 transform=ax.transAxes,
                 fontsize=9,
                 verticalalignment='top',
