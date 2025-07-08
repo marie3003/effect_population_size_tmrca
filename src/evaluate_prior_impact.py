@@ -39,6 +39,8 @@ def create_prior_influence_metric_df_const(N_values, alpha_values, base_mu, base
             rel_wasserstein_dist = calculate_rel_wasserstein_dist(t_vec, posteriors, likelihoods)
             rel_wasserstein_dist2 = calculate_rel_wasserstein2_dist(t_vec, posteriors, likelihoods)
             omega_reverse = calculate_coalescent_information_ratio_at_MAP(N, mu, L, posteriors, t_vec, population_model='constant', reverse_scale=True)
+            mode_shift = calculate_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
+            median_shift = calculate_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
             
             data.append({
                 'N': N,
@@ -46,6 +48,8 @@ def create_prior_influence_metric_df_const(N_values, alpha_values, base_mu, base
                 'rel_mean_shift': rel_mean_shift,
                 'rel_mode_shift': rel_mode_shift,
                 'rel_median_shift': rel_median_shift,
+                'mode_shift': mode_shift,
+                'median_shift': median_shift,
                 'rel_wasserstein_dist': rel_wasserstein_dist,
                 'calculate_rel_wasserstein2_dist': rel_wasserstein_dist2,
                 'reverse_coalescent_information_ratio_at_MAP': omega_reverse,
@@ -103,6 +107,114 @@ def create_prior_influence_metric_df_const_pathogen(pathogen_params):
     df = pd.DataFrame(data)
     
     return df
+
+def create_prior_influence_metric_df_exp_pathogen(pathogen_params, N, beta_vec):
+    """
+    Create a DataFrame to store prior influence metrics for different pathogens and different exponential growth rate.
+    
+    Parameters:
+    pathogen_params (dict): Dictionary containing pathogen parameters including mutation rate, number of mutations, genome length, and maximum time.
+    N (int): Effective population size at present.
+    beta_vec (float vec): Growth rate of the population (positive = growth, negative = decline).
+    
+    Returns:
+    pd.DataFrame: DataFrame containing prior influence metrics.
+    """
+    
+    data = []
+
+    for name, params in pathogen_params.items():
+        for beta in beta_vec:
+            
+            t_vec = np.linspace(0, params['t_max'], params['t_max']*10)
+            likelihoods = np.array([likelihood_tMRCA_mutations(params['k'], params['mu'], t, params['L']) for t in t_vec])
+            priors = np.array([coalescent_prior_expN_present(t, N, beta) for t in t_vec])
+            posteriors = likelihoods * priors
+            
+            rel_mean_shift = calculate_rel_mean_shift(t_vec, posteriors, likelihoods, abs_value=False)
+            rel_median_shift = calculate_rel_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
+            rel_mode_shift = calculate_rel_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
+            rel_wasserstein_dist = calculate_rel_wasserstein_dist(t_vec, posteriors, likelihoods)
+            rel_wasserstein_dist2 = calculate_rel_wasserstein2_dist(t_vec, posteriors, likelihoods)
+            omega_reverse = calculate_coalescent_information_ratio_at_MAP(N, params['mu'], params['L'], posteriors, t_vec, beta=beta, population_model='exponential', reverse_scale=True)
+            mode_shift = calculate_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
+            median_shift = calculate_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
+
+            data.append({
+                'pathogen': name,
+                'N': N,
+                'beta': beta,
+                'rel_mean_shift': rel_mean_shift,
+                'rel_mode_shift': rel_mode_shift,
+                'rel_median_shift': rel_median_shift,
+                'mode_shift': mode_shift,
+                'median_shift': median_shift,
+                'rel_wasserstein_dist': rel_wasserstein_dist,
+                'rel_wasserstein2_dist': rel_wasserstein_dist2,
+                'reverse_coalescent_information_ratio_at_MAP': omega_reverse,
+            })
+    
+    df = pd.DataFrame(data)
+    
+    return df
+
+def create_prior_influence_metric_df_bottleneck_pathogen(pathogen_params, N_high, N_low, t_bottleneck_start, t_bottleneck_end_vec):
+    """
+    Create a DataFrame to store prior influence metrics for different pathogens and different exponential growth rate.
+    
+    Parameters:
+    pathogen_params (dict): Dictionary containing pathogen parameters including mutation rate, number of mutations, genome length, and maximum time.
+    N (int): Effective population size at present.
+    beta_vec (float vec): Growth rate of the population (positive = growth, negative = decline).
+    
+    Returns:
+    pd.DataFrame: DataFrame containing prior influence metrics.
+    """
+    
+    data = []
+
+    for name, params in pathogen_params.items():
+        for t_bottleneck_end in t_bottleneck_end_vec:
+            
+            t_vec = np.linspace(0, params['t_max'], params['t_max']*10)
+            likelihoods = np.array([likelihood_tMRCA_mutations(params['k'], params['mu'], t, params['L']) for t in t_vec])
+            priors = np.array([coalescent_prior_bottleneck(t, N_high, N_low, t_bottleneck_start, t_bottleneck_end) for t in t_vec])
+            posteriors = likelihoods * priors
+            
+            rel_mean_shift = calculate_rel_mean_shift(t_vec, posteriors, likelihoods, abs_value=False)
+            rel_median_shift = calculate_rel_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
+            rel_mode_shift = calculate_rel_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
+            rel_wasserstein_dist = calculate_rel_wasserstein_dist(t_vec, posteriors, likelihoods)
+            rel_wasserstein_dist2 = calculate_rel_wasserstein2_dist(t_vec, posteriors, likelihoods)
+            omega_reverse = calculate_coalescent_information_ratio_at_MAP(N_high, params['mu'], params['L'], posteriors, t_vec, N_low=N_low,
+                                                                            t_bottleneck_start=t_bottleneck_start,
+                                                                            t_bottleneck_end=t_bottleneck_end,
+                                                                            population_model='bottleneck',
+                                                                            reverse_scale=True)
+            mode_shift = calculate_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
+            median_shift = calculate_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
+
+            data.append({
+                'pathogen': name,
+                'N_high': N_high,
+                'N_low': N_low,
+                't_bottleneck_start': t_bottleneck_start,
+                't_bottleneck_end': t_bottleneck_end,
+                'rel_mean_shift': rel_mean_shift,
+                'rel_mode_shift': rel_mode_shift,
+                'rel_median_shift': rel_median_shift,
+                'mode_shift': mode_shift,
+                'median_shift': median_shift,
+                'rel_wasserstein_dist': rel_wasserstein_dist,
+                'rel_wasserstein2_dist': rel_wasserstein_dist2,
+                'reverse_coalescent_information_ratio_at_MAP': omega_reverse,
+            })
+    
+    df = pd.DataFrame(data)
+    
+    return df
+
+
 
 
 def create_prior_influence_metric_df_exp(N_values, alpha_values, beta_values, base_mu, base_k, L, t_max=None):
