@@ -6,13 +6,15 @@ from src.prob_functions import likelihood_tMRCA_mutations, coalescent_prior, coa
 from src.metrics import calculate_coalescent_information_ratio_at_MAP, calculate_rel_mean_shift, calculate_rel_mean_shift_const, calculate_rel_mode_shift, calculate_rel_median_shift, calculate_rel_wasserstein_dist, calculate_rel_wasserstein2_dist, calculate_mode_shift, calculate_median_shift
 
 
+import inspect
+
 def plot_tMRCA_constN(N_values, alpha_values, base_mu, base_k, t_max, L, time_scale="days", metrics=None, title=None):
 
     t_values = np.linspace(0, t_max, t_max * 10)
 
     colors = ["#a6444f", "#397398", "#80557e"]  # Prior, Likelihood, Posterior
 
-    fig, axs = plt.subplots(len(N_values), len(alpha_values), figsize=(20, 12), sharex=True, sharey=True)
+    fig, axs = plt.subplots(len(N_values), len(alpha_values), figsize=(20, 12), sharex=False, sharey=False)
 
     if len(N_values) == 1 and len(alpha_values) == 1:
         axs = np.array([[axs]])
@@ -46,14 +48,16 @@ def plot_tMRCA_constN(N_values, alpha_values, base_mu, base_k, t_max, L, time_sc
             ax.plot(t_values, posteriors, linewidth=2, color=colors[2], label="Posterior")
             ax.grid(True)
 
-            if row == len(N_values) - 1:
-                ax.set_xlabel(f"tMRCA [{time_scale}]")
+            
+            ax.set_xlabel(f"tMRCA [{time_scale}]", fontsize=13)
             if col == 0:
-                ax.set_ylabel(f"N = {int(N)}")
+                ax.set_ylabel(f"N = {int(N)}\n\n Rel. prob. (scaled by max.)", fontsize=13)
+            else:
+                ax.set_ylabel(f"Rel. prob. (scaled by max.)", fontsize=13)
             if row == 0:
-                ax.set_title(f"α = {alpha}")
+                ax.set_title(f"α = {alpha}", fontsize=13)
 
-            ax.legend(loc="upper right", fontsize=9)
+            ax.legend(loc="upper right", fontsize=10, title_fontsize=11)
 
             # Optional metrics
             metric_lines = []
@@ -95,7 +99,7 @@ def plot_tMRCA_constN(N_values, alpha_values, base_mu, base_k, t_max, L, time_sc
                     0.05, 0.95,
                     "\n".join(metric_lines),
                     transform=ax.transAxes,
-                    fontsize=9,
+                    fontsize=10,
                     verticalalignment='top',
                     bbox=dict(boxstyle="round", facecolor="white", edgecolor="gray", alpha=0.6)
                 )
@@ -131,7 +135,7 @@ def plot_tMRCA_expN_present(mu, L, k_mut, N_present, beta_vec, max_tmrca, N = No
     ]
 
     # Set up subplots
-    fig, axs = plt.subplots(1, len(beta_vec), figsize=(20, 5), sharey=True)
+    fig, axs = plt.subplots(1, len(beta_vec), figsize=(20, 5), sharey=False)
 
     for col, beta in enumerate(beta_vec):
         likelihoods = np.array([likelihood_tMRCA_mutations(k_mut, mu, t, L) for t in t_values])
@@ -144,10 +148,6 @@ def plot_tMRCA_expN_present(mu, L, k_mut, N_present, beta_vec, max_tmrca, N = No
         posteriors_expN /= np.max(posteriors_expN)
 
         ax = axs[col]
-        ax.plot(t_values, likelihoods, label="Likelihood", linestyle=":", color=colors[1], alpha = 0.8)
-        ax.plot(t_values, priors_expN, label="Prior (exp N)", linestyle="-.", color=colors[3], alpha = 0.8)
-        ax.plot(t_values, posteriors_expN, label="Posterior (exp N)", linewidth=2, color=colors[4], alpha = 0.8)
-
         if plot_comparison_to_const:
             priors = np.array([coalescent_prior(t, N) for t in t_values])
             posteriors = likelihoods * priors
@@ -157,12 +157,16 @@ def plot_tMRCA_expN_present(mu, L, k_mut, N_present, beta_vec, max_tmrca, N = No
             #plot
             ax.plot(t_values, priors, label="Prior (const N)", linestyle="--", color=colors[0], alpha = 0.8)
             ax.plot(t_values, posteriors, label="Posterior (const N)", linewidth=2, color=colors[2], alpha = 0.8)
-        
-        ax.set_title(f"β = {beta}")
 
-        ax.set_xlabel(f"tMRCA [{time_scale}]")
+        ax.plot(t_values, likelihoods, label="Likelihood", linestyle=":", color=colors[1], alpha = 0.8)
+        ax.plot(t_values, priors_expN, label="Prior (exp N)", linestyle="-.", color=colors[3], alpha = 0.8)
+        ax.plot(t_values, posteriors_expN, label="Posterior (exp N)", linewidth=2, color=colors[4], alpha = 0.8)
+        
+        ax.set_title(f"β = {beta}", fontsize= 14)
+
+        ax.set_xlabel(f"tMRCA [{time_scale}]", fontsize=13)
         if col == 0:
-            ax.set_ylabel("Probability (normalized)")
+            ax.set_ylabel("Rel. prob. (scaled by max.)", fontsize=13)
         ax.grid(True)
         ax.legend(fontsize=8, loc="upper right")
 
@@ -172,19 +176,20 @@ def plot_tMRCA_expN_present(mu, L, k_mut, N_present, beta_vec, max_tmrca, N = No
         rel_w_dist = calculate_rel_wasserstein_dist(t_values, posteriors_expN, likelihoods)
         #rel_mean_shift = calculate_rel_mean_shift(t_values, posteriors_expN, likelihoods, abs_value=False)
         rel_mode_shift = calculate_rel_mode_shift(t_values, posteriors_expN, likelihoods, abs_value=False)
+        median_shift = calculate_median_shift(t_values, posteriors_expN, likelihoods, abs_value=False)
         reverse_omega = calculate_coalescent_information_ratio_at_MAP(N_present, mu, L, posteriors_expN, t_values, beta=beta, population_model='exponential', reverse_scale=True)
         mode_shift = calculate_mode_shift(t_values, posteriors_expN, likelihoods, abs_value=False)
 
         ax.text(
             0.05, 0.95,
-            f"W. dist. = {rel_w_dist:.2f}\n1 - Ω = {reverse_omega:.2f}\nRel. mode shift = {rel_mode_shift:.2f}\n Mode shift = {mode_shift:.2f}",
+            f"W. dist. = {rel_w_dist:.2f}\n1 - Ω = {reverse_omega:.2f}\nMedian shift = {median_shift:.2f}",
             transform=ax.transAxes,
             fontsize=9,
             verticalalignment='top',
             bbox=dict(boxstyle="round", facecolor="white", edgecolor="gray", alpha=0.6)
         )
 
-    plt.suptitle(f"Prior, Likelihood, and Posterior of tMRCA for Different Exponential Growth Rates (β) with N_present = {int(N_present)}")
+    #plt.suptitle(f"Prior, Likelihood, and Posterior of tMRCA for Different Exponential Growth Rates (β) with N_present = {int(N_present)}")
     plt.show()
 
 def plot_tMRCA_expN(mu, L, k_mut, t_present, N_0, beta_vec, max_tmrca, varying_N = False, N = None, N_vec = None, evaluation = 'likelihood', time_scale = "days"):
@@ -321,20 +326,20 @@ def plot_tMRCA_bottleneck(mu, L, k_mut, N_high, N_low_vec, t_bottleneck_start, t
             posteriors_bottleneck /= np.max(posteriors_bottleneck)
 
             ax = axs[row, col]
-            line1, = ax.plot(t_values, priors, linestyle="--", color=colors[0], label="Prior (Const N)")
+            #line1, = ax.plot(t_values, priors, linestyle="--", color=colors[0], label="Prior (Const N)")
             line2, = ax.plot(t_values, likelihoods, linestyle=":", color=colors[1], label="Likelihood")
-            line3, = ax.plot(t_values, posteriors, color=colors[2], label="Posterior (Const N)")
+            #line3, = ax.plot(t_values, posteriors, color=colors[2], label="Posterior (Const N)")
             line4, = ax.plot(t_values, priors_bottleneck, linestyle="--", color=colors[3], label="Prior (Bottleneck)")
             line5, = ax.plot(t_values, posteriors_bottleneck, color=colors[4], label="Posterior (Bottleneck)")
             ax.grid(True)
 
 
             if row == len(N_low_vec) - 1:
-                ax.set_xlabel(f"tMRCA [{time_scale}]")
+                ax.set_xlabel(f"tMRCA [{time_scale}]", fontsize=13)
             if col == 0:
-                ax.set_ylabel(f"N_low = {N_low}")
+                ax.set_ylabel(f"N_low = {N_low}\nRel. prob. (scaled by max.)", fontsize = 13)
             if row == 0:
-                ax.set_title(f"t_end = {t_bottleneck_end}")
+                ax.set_title(f"t_end = {t_bottleneck_end}", fontsize = 14)
 
             rel_w_dist = calculate_rel_wasserstein_dist(t_values, posteriors_bottleneck, likelihoods)
             rel_w2_dist = calculate_rel_wasserstein2_dist(t_values, posteriors_bottleneck, likelihoods)
@@ -351,9 +356,10 @@ def plot_tMRCA_bottleneck(mu, L, k_mut, N_high, N_low_vec, t_bottleneck_start, t
 
             ax.text(
                 0.05, 0.95,
-                f"W. dist. = {rel_w_dist:.2f}\nW2. dist. = {rel_w2_dist:.2f} \n1 - Ω= {reverse_omega:.2f}\nRel. mode shift = {rel_mode_shift:.2f}\nMode shift = {mode_shift:.2f}\nMedian shift = {median_shift:.2f}",
+                #f"W. dist. = {rel_w_dist:.2f}\nW2. dist. = {rel_w2_dist:.2f} \n1 - Ω= {reverse_omega:.2f}\nRel. mode shift = {rel_mode_shift:.2f}\nMode shift = {mode_shift:.2f}\nMedian shift = {median_shift:.2f}",
+                f"W. dist. = {rel_w_dist:.2f}\n1 - Ω= {reverse_omega:.2f}\nMode shift = {mode_shift:.2f}\nMedian shift = {median_shift:.2f}",
                 transform=ax.transAxes,
-                fontsize=9,
+                fontsize=11,
                 verticalalignment='top',
                 bbox=dict(boxstyle="round", facecolor="white", edgecolor="gray", alpha=0.6)
             )
@@ -363,11 +369,12 @@ def plot_tMRCA_bottleneck(mu, L, k_mut, N_high, N_low_vec, t_bottleneck_start, t
 
     # Final formatting
     fig.legend(
-        handles=[line1, line2, line3, line4, line5],
+        handles=[line2, line4, line5],#[line1, line2, line3, line4, line5],
         loc='upper right',
         bbox_to_anchor=(1, 0.98),
-        fontsize=10
+        fontsize=11
     )
-    plt.suptitle("tMRCA Prior, Likelihood, and Posterior\nVarying Bottleneck Depth (rows) and Duration (columns)", fontsize=16)
+    plt.suptitle("tMRCA Prior, Likelihood, and Posterior\nat varying bottleneck duration", fontsize=16)
     plt.tight_layout(rect=[0, 0, 1, 0.94])
     plt.show()
+

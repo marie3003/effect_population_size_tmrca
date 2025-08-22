@@ -609,15 +609,17 @@ def plot_error_metrics_by_beta_pathogen(exp_evaluation_df, error_metrics, title,
 
         ax.axhline(0, color='black', linestyle='--', linewidth=1)
         if neg:
-            ax.set_xlabel("-Beta", fontsize=12)
+            ax.set_xlabel("-Beta", fontsize=14)
         else:
-            ax.set_xlabel("Beta", fontsize=12)
+            ax.set_xlabel("Beta", fontsize=14)
         ax.set_xscale("log")
+        ax.tick_params(labelleft=True)
+        ax.tick_params(axis='both', which='major', labelsize=13)
         ax.grid(True)
-        ax.set_title(f"N = {int(N_val)}", fontsize=14)
+        ax.set_title(f"N = {int(N_val)}", fontsize=16)
         if j == 0:
-            ax.set_ylabel("Error Metric Value", fontsize=12)
-        ax.legend(title="Metric", fontsize=9, title_fontsize=10, loc="upper left")
+            ax.set_ylabel("Error Metric Value", fontsize=14)
+        ax.legend(title="Metric", fontsize=10, title_fontsize=11, loc="upper left")
 
     fig.suptitle(title, fontsize=22)
     plt.show()
@@ -709,11 +711,11 @@ def plot_metric_summary(df_const, df_exp, df_declining, df_bottleneck, title, me
         labels.append(f"N = {N}")
 
     ax.set_xscale("log")
-    ax.set_xlabel("Alpha (log scale)", fontsize=12)
-    ax.set_ylabel(f"{metric}", fontsize=12)
-    ax.set_title("Constant population", fontsize=14)
+    ax.set_xlabel("Alpha (log scale)", fontsize=16)
+    ax.set_ylabel(f"{metric} [years]", fontsize=16)
+    ax.set_title("Constant population", fontsize=18)
     ax.grid(True, which='both', ls='--', linewidth=0.5)
-    ax.legend(handles, labels, title="N", fontsize=10, title_fontsize=11)
+    ax.legend(handles, labels, title="N", fontsize=13, title_fontsize=14)
     ax.axhline(0, color="black", linestyle="dotted", linewidth=1)
 
     # MIDDLE LEFT: Exponentially growing population
@@ -728,11 +730,11 @@ def plot_metric_summary(df_const, df_exp, df_declining, df_bottleneck, title, me
         )
 
     ax2.set_xscale("log")
-    ax2.set_xlabel("Transmission rate β (log scale)", fontsize=12)
-    ax2.set_ylabel(f"{metric} [years]", fontsize=12)
-    ax2.set_title("Exponentially growing population", fontsize=14)
+    ax2.set_xlabel("Transmission rate β (log scale)", fontsize=16)
+    ax2.set_ylabel(f"{metric} [years]", fontsize=16)
+    ax2.set_title("Exponentially growing population", fontsize=18)
     ax2.grid(True, which='both', ls='--', linewidth=0.5)
-    ax2.legend(title="N_present", fontsize=10, title_fontsize=11)
+    ax2.legend(title="N_present", fontsize=13, title_fontsize=14)
     ax2.axhline(0, color="black", linestyle="dotted", linewidth=1)
 
     # RIGHT: Exponentially declining population (note: plot over -beta)
@@ -750,11 +752,11 @@ def plot_metric_summary(df_const, df_exp, df_declining, df_bottleneck, title, me
         )
 
     ax3.set_xscale("log")
-    ax3.set_xlabel("−β (log scale)", fontsize=12)
-    ax3.set_ylabel(f"{metric} [years]", fontsize=12)
-    ax3.set_title("Exponentially declining population", fontsize=14)
+    ax3.set_xlabel("−β (log scale)", fontsize=16)
+    ax3.set_ylabel(f"{metric} [years]", fontsize=16)
+    ax3.set_title("Exponentially declining population", fontsize=18)
     ax3.grid(True, which='both', ls='--', linewidth=0.5)
-    ax3.legend(title="N_present", fontsize=10, title_fontsize=11)
+    ax3.legend(title="N_present", fontsize=13, title_fontsize=14)
     ax3.axhline(0, color="black", linestyle="dotted", linewidth=1)
 
     # MIDDLE RIGHT: Bottleneck model
@@ -769,15 +771,19 @@ def plot_metric_summary(df_const, df_exp, df_declining, df_bottleneck, title, me
             color=colors[i % len(colors)]
         )
 
-    ax4.set_xlabel("Bottleneck duration [years]", fontsize=12)
-    ax4.set_ylabel(f"{metric} [years]", fontsize=12)
-    ax4.set_title("Population with bottleneck", fontsize=14)
+    ax4.set_xlabel("Bottleneck duration [years]", fontsize=16)
+    ax4.set_ylabel(f"{metric} [years]", fontsize=16)
+    ax4.set_title("Population with bottleneck", fontsize=18)
     ax4.grid(True, which='both', ls='--', linewidth=0.5)
-    ax4.legend(title="N_low", fontsize=10, title_fontsize=11)
+    ax4.legend(title="N_low", fontsize=13, title_fontsize=14)
     ax4.axhline(0, color="black", linestyle="dotted", linewidth=1)
 
+    for axis in [ax, ax2, ax3, ax4]:
+        axis.tick_params(axis='both', which='major', labelsize=14)
+
+
     # Set overall title
-    fig.suptitle(title, fontsize=16)
+    #fig.suptitle(title, fontsize=16)
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
 
@@ -831,13 +837,14 @@ def plot_pathogen_error_summary(df_const, df_growth, df_decline, df_bottleneck, 
             ax.plot(df_p[x_col], df_p[error_col], marker="o", color=colors[i % len(colors)], label=pathogen)
 
         ax.set_xscale(config["xscale"])
-        ax.set_xlabel(config["x_label"], fontsize=14)
-        ax.set_title(config["title"], fontsize=16)
+        ax.set_xlabel(config["x_label"], fontsize=16)
+        ax.set_title(config["title"], fontsize=18)
         ax.grid(True, which='both', ls='--', linewidth=0.5)
         ax.axhline(0, color="black", linestyle="dotted", linewidth=1)
         ax.tick_params(labelleft=True)  # ensure y-axis ticks are shown for each
-        ax.set_ylabel(error_col, fontsize=14)
-        ax.legend(title="Pathogen", fontsize=12, title_fontsize=13)
+        ax.tick_params(axis='both', which='major', labelsize=14)
+        ax.set_ylabel(error_col, fontsize=16)
+        ax.legend(title="Pathogen", fontsize=13, title_fontsize=14)
 
     fig.suptitle(title, fontsize=22)
     plt.show()
