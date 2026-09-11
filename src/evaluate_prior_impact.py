@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from src.prob_functions import likelihood_tMRCA_mutations, coalescent_prior, coalescent_prior_expN_present, coalescent_prior_bottleneck
-from src.metrics import calculate_rel_mean_shift_const, calculate_rel_median_shift, calculate_median_shift, calculate_rel_mean_shift, calculate_rel_mode_shift, calculate_rel_wasserstein_dist, calculate_rel_wasserstein2_dist, calculate_coalescent_information_ratio_at_MAP, calculate_mode_shift
+from src.metrics import calculate_rel_mean_shift_const, calculate_rel_median_shift, calculate_median_shift, calculate_rel_mean_shift, calculate_rel_mode_shift, calculate_wasserstein_dist, calculate_wasserstein2_dist, calculate_coalescent_information_ratio_at_MAP, calculate_mode_shift
 
 
 # possibly adapt such that t_max is calculated authomatically, e.g. time point when probability is below a certain threshold
@@ -36,8 +36,8 @@ def create_prior_influence_metric_df_const(N_values, alpha_values, base_mu, base
             rel_mean_shift = calculate_rel_mean_shift_const(L, mu, N, abs_value=True)
             rel_median_shift = calculate_rel_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
             rel_mode_shift = calculate_rel_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
-            rel_wasserstein_dist = calculate_rel_wasserstein_dist(t_vec, posteriors, likelihoods)
-            rel_wasserstein_dist2 = calculate_rel_wasserstein2_dist(t_vec, posteriors, likelihoods)
+            wasserstein_dist = calculate_wasserstein_dist(t_vec, posteriors, likelihoods)
+            wasserstein_dist2 = calculate_wasserstein2_dist(t_vec, posteriors, likelihoods)
             omega_reverse = calculate_coalescent_information_ratio_at_MAP(N, mu, L, posteriors, t_vec, population_model='constant', reverse_scale=True)
             mode_shift = calculate_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
             median_shift = calculate_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
@@ -50,8 +50,8 @@ def create_prior_influence_metric_df_const(N_values, alpha_values, base_mu, base
                 'rel_median_shift': rel_median_shift,
                 'mode_shift': mode_shift,
                 'median_shift': median_shift,
-                'rel_wasserstein_dist': rel_wasserstein_dist,
-                'calculate_rel_wasserstein2_dist': rel_wasserstein_dist2,
+                'wasserstein_dist': wasserstein_dist,
+                'wasserstein_dist2': wasserstein_dist2,
                 'reverse_coalescent_information_ratio_at_MAP': omega_reverse,
             })
     
@@ -85,8 +85,8 @@ def create_prior_influence_metric_df_const_pathogen(pathogen_params):
             rel_mean_shift = calculate_rel_mean_shift_const(params['L'], params['mu'], N, abs_value=True)
             rel_median_shift = calculate_rel_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
             rel_mode_shift = calculate_rel_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
-            rel_wasserstein_dist = calculate_rel_wasserstein_dist(t_vec, posteriors, likelihoods)
-            rel_wasserstein_dist2 = calculate_rel_wasserstein2_dist(t_vec, posteriors, likelihoods)
+            wasserstein_dist = calculate_wasserstein_dist(t_vec, posteriors, likelihoods)
+            wasserstein_dist2 = calculate_wasserstein2_dist(t_vec, posteriors, likelihoods)
             omega_reverse = calculate_coalescent_information_ratio_at_MAP(N, params['mu'], params['L'], posteriors, t_vec, population_model='constant', reverse_scale=True)
             mode_shift = calculate_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
             median_shift = calculate_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
@@ -99,8 +99,8 @@ def create_prior_influence_metric_df_const_pathogen(pathogen_params):
                 'rel_median_shift': rel_median_shift,
                 'mode_shift': mode_shift,
                 'median_shift': median_shift,
-                'rel_wasserstein_dist': rel_wasserstein_dist,
-                'rel_wasserstein2_dist': rel_wasserstein_dist2,
+                'wasserstein_dist': wasserstein_dist,
+                'wasserstein2_dist': wasserstein_dist2,
                 'reverse_coalescent_information_ratio_at_MAP': omega_reverse,
             })
     
@@ -132,13 +132,13 @@ def create_prior_influence_metric_df_exp_pathogen(pathogen_params, N, beta_vec):
             posteriors = likelihoods * priors
             
             rel_mean_shift = calculate_rel_mean_shift(t_vec, posteriors, likelihoods, abs_value=False)
-            rel_median_shift = calculate_rel_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
-            rel_mode_shift = calculate_rel_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
-            rel_wasserstein_dist = calculate_rel_wasserstein_dist(t_vec, posteriors, likelihoods)
-            rel_wasserstein_dist2 = calculate_rel_wasserstein2_dist(t_vec, posteriors, likelihoods)
+            rel_median_shift = calculate_rel_median_shift(t_vec, posteriors, likelihoods, abs_value=False)
+            rel_mode_shift = calculate_rel_mode_shift(t_vec, posteriors, likelihoods, abs_value=False)
+            wasserstein_dist = calculate_wasserstein_dist(t_vec, posteriors, likelihoods)
+            wasserstein_dist2 = calculate_wasserstein2_dist(t_vec, posteriors, likelihoods)
             omega_reverse = calculate_coalescent_information_ratio_at_MAP(N, params['mu'], params['L'], posteriors, t_vec, beta=beta, population_model='exponential', reverse_scale=True)
-            mode_shift = calculate_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
-            median_shift = calculate_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
+            mode_shift = calculate_mode_shift(t_vec, posteriors, likelihoods, abs_value=False)
+            median_shift = calculate_median_shift(t_vec, posteriors, likelihoods, abs_value=False)
 
             data.append({
                 'pathogen': name,
@@ -149,8 +149,8 @@ def create_prior_influence_metric_df_exp_pathogen(pathogen_params, N, beta_vec):
                 'rel_median_shift': rel_median_shift,
                 'mode_shift': mode_shift,
                 'median_shift': median_shift,
-                'rel_wasserstein_dist': rel_wasserstein_dist,
-                'rel_wasserstein2_dist': rel_wasserstein_dist2,
+                'wasserstein_dist': wasserstein_dist,
+                'wasserstein2_dist': wasserstein_dist2,
                 'reverse_coalescent_information_ratio_at_MAP': omega_reverse,
             })
     
@@ -182,17 +182,17 @@ def create_prior_influence_metric_df_bottleneck_pathogen(pathogen_params, N_high
             posteriors = likelihoods * priors
             
             rel_mean_shift = calculate_rel_mean_shift(t_vec, posteriors, likelihoods, abs_value=False)
-            rel_median_shift = calculate_rel_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
-            rel_mode_shift = calculate_rel_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
-            rel_wasserstein_dist = calculate_rel_wasserstein_dist(t_vec, posteriors, likelihoods)
-            rel_wasserstein_dist2 = calculate_rel_wasserstein2_dist(t_vec, posteriors, likelihoods)
+            rel_median_shift = calculate_rel_median_shift(t_vec, posteriors, likelihoods, abs_value=False)
+            rel_mode_shift = calculate_rel_mode_shift(t_vec, posteriors, likelihoods, abs_value=False)
+            wasserstein_dist = calculate_wasserstein_dist(t_vec, posteriors, likelihoods)
+            wasserstein_dist2 = calculate_wasserstein2_dist(t_vec, posteriors, likelihoods)
             omega_reverse = calculate_coalescent_information_ratio_at_MAP(N_high, params['mu'], params['L'], posteriors, t_vec, N_low=N_low,
                                                                             t_bottleneck_start=t_bottleneck_start,
                                                                             t_bottleneck_end=t_bottleneck_end,
                                                                             population_model='bottleneck',
                                                                             reverse_scale=True)
-            mode_shift = calculate_mode_shift(t_vec, posteriors, likelihoods, abs_value=True)
-            median_shift = calculate_median_shift(t_vec, posteriors, likelihoods, abs_value=True)
+            mode_shift = calculate_mode_shift(t_vec, posteriors, likelihoods, abs_value=False)
+            median_shift = calculate_median_shift(t_vec, posteriors, likelihoods, abs_value=False)
 
             data.append({
                 'pathogen': name,
@@ -205,8 +205,8 @@ def create_prior_influence_metric_df_bottleneck_pathogen(pathogen_params, N_high
                 'rel_median_shift': rel_median_shift,
                 'mode_shift': mode_shift,
                 'median_shift': median_shift,
-                'rel_wasserstein_dist': rel_wasserstein_dist,
-                'rel_wasserstein2_dist': rel_wasserstein_dist2,
+                'wasserstein_dist': wasserstein_dist,
+                'wasserstein2_dist': wasserstein_dist2,
                 'reverse_coalescent_information_ratio_at_MAP': omega_reverse,
             })
     
@@ -251,8 +251,8 @@ def create_prior_influence_metric_df_exp(N_values, alpha_values, beta_values, ba
                 rel_mean_shift = calculate_rel_mean_shift(t_vec, posteriors, likelihoods, abs_value=False)
                 rel_median_shift = calculate_rel_median_shift(t_vec, posteriors, likelihoods, abs_value=False)
                 rel_mode_shift = calculate_rel_mode_shift(t_vec, posteriors, likelihoods, abs_value=False)
-                rel_wasserstein_dist = calculate_rel_wasserstein_dist(t_vec, posteriors, likelihoods)
-                rel_wasserstein_dist2 = calculate_rel_wasserstein2_dist(t_vec, posteriors, likelihoods)
+                wasserstein_dist = calculate_wasserstein_dist(t_vec, posteriors, likelihoods)
+                wasserstein_dist2 = calculate_wasserstein2_dist(t_vec, posteriors, likelihoods)
                 reverse_omega = calculate_coalescent_information_ratio_at_MAP(N, mu, L, posteriors, t_vec, beta=beta,
                                                                             population_model='exponential',
                                                                             reverse_scale=True)
@@ -264,8 +264,8 @@ def create_prior_influence_metric_df_exp(N_values, alpha_values, beta_values, ba
                     'rel_mean_shift': rel_mean_shift,
                     'rel_mode_shift': rel_mode_shift,
                     'rel_median_shift': rel_median_shift,
-                    'rel_wasserstein_dist': rel_wasserstein_dist,
-                    'calculate_rel_wasserstein2_dist': rel_wasserstein_dist2,
+                    'wasserstein_dist': wasserstein_dist,
+                    'wasserstein_dist2': wasserstein_dist2,
                     'r_coalescent_information_ratio_at_MAP': reverse_omega,
                 })
 
@@ -301,8 +301,8 @@ def create_prior_influence_metric_df_pathogen_exp(N_beta_dict, mu, k, L, t_max):
             rel_mean_shift = calculate_rel_mean_shift(t_vec, posteriors, likelihoods, abs_value=False)
             rel_median_shift = calculate_rel_median_shift(t_vec, posteriors, likelihoods, abs_value=False)
             rel_mode_shift = calculate_rel_mode_shift(t_vec, posteriors, likelihoods, abs_value=False)
-            rel_wasserstein_dist = calculate_rel_wasserstein_dist(t_vec, posteriors, likelihoods)
-            rel_wasserstein_dist2 = calculate_rel_wasserstein2_dist(t_vec, posteriors, likelihoods)
+            wasserstein_dist = calculate_wasserstein_dist(t_vec, posteriors, likelihoods)
+            wasserstein_dist2 = calculate_wasserstein2_dist(t_vec, posteriors, likelihoods)
             reverse_omega = calculate_coalescent_information_ratio_at_MAP(N, mu, L, posteriors, t_vec, beta=beta,
                                                                         population_model='exponential',
                                                                         reverse_scale=True)
@@ -315,8 +315,8 @@ def create_prior_influence_metric_df_pathogen_exp(N_beta_dict, mu, k, L, t_max):
                 'rel_mean_shift': rel_mean_shift,
                 'rel_mode_shift': rel_mode_shift,
                 'rel_median_shift': rel_median_shift,
-                'rel_wasserstein_dist': rel_wasserstein_dist,
-                'calculate_rel_wasserstein2_dist': rel_wasserstein_dist2,
+                'wasserstein_dist': wasserstein_dist,
+                'wasserstein_dist2': wasserstein_dist2,
                 'r_coalescent_information_ratio_at_MAP': reverse_omega,
                 'mode_shift': mode_shift,
                 'median_shift': median_shift,
@@ -362,8 +362,8 @@ def create_prior_influence_metric_df_bottleneck(N_high, N_low_values, t_bottlene
                 rel_mean_shift = calculate_rel_mean_shift(t_vec, posteriors, likelihoods, abs_value=False)
                 rel_median_shift = calculate_rel_median_shift(t_vec, posteriors, likelihoods, abs_value=False)
                 rel_mode_shift = calculate_rel_mode_shift(t_vec, posteriors, likelihoods, abs_value=False)
-                rel_wasserstein_dist = calculate_rel_wasserstein_dist(t_vec, posteriors, likelihoods)
-                rel_wasserstein_dist2 = calculate_rel_wasserstein2_dist(t_vec, posteriors, likelihoods)
+                wasserstein_dist = calculate_wasserstein_dist(t_vec, posteriors, likelihoods)
+                wasserstein_dist2 = calculate_wasserstein2_dist(t_vec, posteriors, likelihoods)
                 reverse_omega = calculate_coalescent_information_ratio_at_MAP(N_high, mu, L, posteriors, t_vec, N_low=N_low,
                                                                             t_bottleneck_start=t_bottleneck_start,
                                                                             t_bottleneck_end=t_bottleneck_end,
@@ -383,8 +383,8 @@ def create_prior_influence_metric_df_bottleneck(N_high, N_low_values, t_bottlene
                     'mode_shift': mode_shift,
                     'median_shift': median_shift,
                     'rel_median_shift': rel_median_shift,
-                    'rel_wasserstein_dist': rel_wasserstein_dist,
-                    'rel_wasserstein2_dist': rel_wasserstein_dist2,
+                    'wasserstein_dist': wasserstein_dist,
+                    'wasserstein2_dist': wasserstein_dist2,
                     'r_coalescent_information_ratio_at_MAP': reverse_omega,
                 })
 

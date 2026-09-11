@@ -6,7 +6,7 @@ import numpy as np
 
 ############### Constant population size ################
 
-def plot_error_metrics_const(evaluation_df, title):
+def plot_error_metrics_const(evaluation_df, title, save_path=None):
 
     error_metrics = evaluation_df.columns[2:]
     num_metrics = len(error_metrics)
@@ -23,9 +23,11 @@ def plot_error_metrics_const(evaluation_df, title):
         ax.legend(title="alpha", fontsize=12, title_fontsize='13')
 
     fig.suptitle(title, fontsize=20)
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
-def plot_metrics_by_alpha_const(evaluation_df, title):
+def plot_metrics_by_alpha_const(evaluation_df, title, save_path=None):
 
     colors = [
         "#a6444f",  # reddish
@@ -63,11 +65,13 @@ def plot_metrics_by_alpha_const(evaluation_df, title):
         ax.legend(loc='lower left', bbox_to_anchor=(0.18, 0.65), fontsize=10, title ="Metrics", title_fontsize='12')
 
     fig.suptitle(title, fontsize=20)
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
 ################ Exponentially growing population size ################
 
-def plot_error_metrics_exp(exp_evaluation_df, title):
+def plot_error_metrics_exp(exp_evaluation_df, title, save_path=None):
 
     # Custom color palette
     colors = [
@@ -125,9 +129,11 @@ def plot_error_metrics_exp(exp_evaluation_df, title):
             ax.legend(title="Growth rate", fontsize=9, title_fontsize=10, loc="upper left")
 
     fig.suptitle(title, fontsize=22)
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
-def plot_error_metrics_exp_all_metrics_per_subplot(exp_evaluation_df, title):
+def plot_error_metrics_exp_all_metrics_per_subplot(exp_evaluation_df, title, save_path=None):
 
     # Define custom colors for the error metrics
     colors = [
@@ -183,9 +189,11 @@ def plot_error_metrics_exp_all_metrics_per_subplot(exp_evaluation_df, title):
             ax.legend(title="Metric", fontsize=9, title_fontsize=10, loc="upper left")
 
     fig.suptitle(title, fontsize=22)
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
-def plot_error_heatmaps(exp_evaluation_df, alpha_fixed, title):
+def plot_error_heatmaps(exp_evaluation_df, alpha_fixed, title, save_path=None):
 
     # Filter by fixed alpha
     df = exp_evaluation_df[exp_evaluation_df["alpha"] == alpha_fixed].copy()
@@ -236,10 +244,12 @@ def plot_error_heatmaps(exp_evaluation_df, alpha_fixed, title):
 
     fig.suptitle(f"{title} (alpha = {alpha_fixed})", fontsize=18)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
 
-def plot_error_metrics_by_beta(exp_evaluation_df, title, neg = False):
+def plot_error_metrics_by_beta(exp_evaluation_df, title, neg = False, save_path=None):
 
     # Define custom colors for the error metrics
     colors = [
@@ -301,11 +311,13 @@ def plot_error_metrics_by_beta(exp_evaluation_df, title, neg = False):
 
     fig.suptitle(title, fontsize=22)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
 ################ Bottleneck population size ################
 
-def plot_bottleneck_heatmaps(bottleneck_evaluation_df, title):
+def plot_bottleneck_heatmaps(bottleneck_evaluation_df, title, save_path=None):
 
     bottleneck_evaluation_df = bottleneck_evaluation_df.copy()
 
@@ -360,9 +372,11 @@ def plot_bottleneck_heatmaps(bottleneck_evaluation_df, title):
                 ax.set_ylabel(f"alpha = {alpha_val}\nBottleneck duration", fontsize=12)
 
     fig.suptitle(title, fontsize=24)
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
-def plot_bottleneck_error_metrics_by_depth(bottleneck_df, title):
+def plot_bottleneck_error_metrics_by_depth(bottleneck_df, title, save_path=None):
     import matplotlib.pyplot as plt
     import numpy as np
 
@@ -432,9 +446,11 @@ def plot_bottleneck_error_metrics_by_depth(bottleneck_df, title):
                loc='upper right', bbox_to_anchor=(0.9, 1), borderaxespad=0)
 
     fig.suptitle(title, fontsize=22)
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
-def plot_bottleneck_error_metrics_by_duration(bottleneck_df, title):
+def plot_bottleneck_error_metrics_by_duration(bottleneck_df, title, save_path=None):
 
     # Define custom colors for the error metrics
     colors = [
@@ -502,12 +518,14 @@ def plot_bottleneck_error_metrics_by_duration(bottleneck_df, title):
                loc='upper right', bbox_to_anchor=(0.9, 1), borderaxespad=0)
 
     fig.suptitle(title, fontsize=22)
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
 
 ################ Pathogen comparison ################
 
-def plot_metrics_by_pathogen_const(evaluation_df, error_metrics, title):
+def plot_metrics_by_pathogen_const(evaluation_df, error_metrics, title, save_path=None):
     """
     Plot all prior influence error metrics over N for each pathogen in separate subplots (columns).
     
@@ -561,9 +579,11 @@ def plot_metrics_by_pathogen_const(evaluation_df, error_metrics, title):
     fig.suptitle(title, fontsize=20)
     plt.tight_layout()
     plt.subplots_adjust(top=0.85)
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
-def plot_error_metrics_by_beta_pathogen(exp_evaluation_df, error_metrics, title, neg = False):
+def plot_error_metrics_by_beta_pathogen(exp_evaluation_df, error_metrics, title, neg = False, save_path=None):
     """
     Plot prior influence metrics over beta for different N_present values in separate subplots.
 
@@ -622,9 +642,11 @@ def plot_error_metrics_by_beta_pathogen(exp_evaluation_df, error_metrics, title,
         ax.legend(title="Metric", fontsize=10, title_fontsize=11, loc="upper left")
 
     fig.suptitle(title, fontsize=22)
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
-def plot_mode_shift_pathogen_summary(df, title):
+def plot_mode_shift_pathogen_summary(df, title, save_path=None):
     # Define custom colors for each pathogen
     colors = [
         "#a6444f",  # reddish
@@ -671,31 +693,15 @@ def plot_mode_shift_pathogen_summary(df, title):
     # Add legend
     ax.legend(handles, labels, title="Pathogen", fontsize=10, title_fontsize=11)
 
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
 
-def plot_metric_summary(df_const, df_exp, df_declining, df_bottleneck, title, metric="mode_shift"):
-    # Define custom colors
-    colors = [
-        "#a6444f", "#80557e", "#57a8b8", "#7394c2", "#7a7a7a",
-    ]
-
-    # Prepare DataFrames
-    plot_df = df_const.copy()
-    exp_df = df_exp.copy()
-    declining_df = df_declining.copy()
-    bottleneck_df = df_bottleneck.copy()
-
+def _plot_metric_summary_const(ax, df_const, metric, colors, y_label, legend_title=None):
+    df_const = df_const.copy()
     Ns_const = sorted(df_const["N"].unique())
-    Ns_exp = sorted(exp_df["N_present"].unique())
-    Ns_decline = sorted(declining_df["N_present"].unique())
-    N_lows = sorted(bottleneck_df["N_low"].unique())
 
-    # Create subplots
-    fig, axes = plt.subplots(1, 4, figsize=(28, 6), sharey=False)
-    ax, ax2, ax3, ax4 = axes
-
-    # LEFT: Constant population model (replaced with df_const over alpha for each N)
     handles, labels = [], []
     for i, N in enumerate(Ns_const):
         df_N = df_const[df_const["N"] == N].sort_values("alpha")
@@ -711,17 +717,21 @@ def plot_metric_summary(df_const, df_exp, df_declining, df_bottleneck, title, me
         labels.append(f"N = {N}")
 
     ax.set_xscale("log")
-    ax.set_xlabel("Alpha (log scale)", fontsize=16)
-    ax.set_ylabel(f"{metric} [years]", fontsize=16)
-    ax.set_title("Constant population", fontsize=18)
+    ax.set_xlabel("Alpha (log scale)", fontsize=22)
+    ax.set_ylabel(y_label, fontsize=22)
+    ax.set_title("Constant population size", fontsize=24)
     ax.grid(True, which='both', ls='--', linewidth=0.5)
-    ax.legend(handles, labels, title="N", fontsize=13, title_fontsize=14)
+    ax.legend(handles, labels, title="N" if legend_title is None else legend_title, fontsize=17, title_fontsize=18)
     ax.axhline(0, color="black", linestyle="dotted", linewidth=1)
 
-    # MIDDLE LEFT: Exponentially growing population
+
+def _plot_metric_summary_exp(ax, df_exp, metric, colors, y_label, legend_title=None):
+    exp_df = df_exp.copy()
+    Ns_exp = sorted(exp_df["N_present"].unique())
+
     for i, N in enumerate(Ns_exp):
         df_N = exp_df[exp_df["N_present"] == N].sort_values("beta")
-        ax2.plot(
+        ax.plot(
             df_N["beta"],
             df_N[metric],
             marker="o",
@@ -729,21 +739,25 @@ def plot_metric_summary(df_const, df_exp, df_declining, df_bottleneck, title, me
             color=colors[i % len(colors)]
         )
 
-    ax2.set_xscale("log")
-    ax2.set_xlabel("Transmission rate β (log scale)", fontsize=16)
-    ax2.set_ylabel(f"{metric} [years]", fontsize=16)
-    ax2.set_title("Exponentially growing population", fontsize=18)
-    ax2.grid(True, which='both', ls='--', linewidth=0.5)
-    ax2.legend(title="N_present", fontsize=13, title_fontsize=14)
-    ax2.axhline(0, color="black", linestyle="dotted", linewidth=1)
+    ax.set_xscale("log")
+    ax.set_xlabel("Growth rate β (log scale)", fontsize=22)
+    ax.set_ylabel(y_label, fontsize=22)
+    ax.set_title("Exponential growth", fontsize=24)
+    ax.grid(True, which='both', ls='--', linewidth=0.5)
+    ax.legend(title="N_present" if legend_title is None else legend_title, fontsize=17, title_fontsize=18)
+    ax.axhline(0, color="black", linestyle="dotted", linewidth=1)
 
-    # RIGHT: Exponentially declining population (note: plot over -beta)
+
+def _plot_metric_summary_declining(ax, df_declining, metric, colors, y_label, legend_title=None):
+    declining_df = df_declining.copy()
+    Ns_decline = sorted(declining_df["N_present"].unique())
+
     for i, N in enumerate(Ns_decline):
         df_N = declining_df[declining_df["N_present"] == N].copy()
         df_N["neg_beta"] = -df_N["beta"]
         df_N = df_N.sort_values("neg_beta")
 
-        ax3.plot(
+        ax.plot(
             df_N["neg_beta"],
             df_N[metric],
             marker="o",
@@ -751,19 +765,23 @@ def plot_metric_summary(df_const, df_exp, df_declining, df_bottleneck, title, me
             color=colors[i % len(colors)]
         )
 
-    ax3.set_xscale("log")
-    ax3.set_xlabel("−β (log scale)", fontsize=16)
-    ax3.set_ylabel(f"{metric} [years]", fontsize=16)
-    ax3.set_title("Exponentially declining population", fontsize=18)
-    ax3.grid(True, which='both', ls='--', linewidth=0.5)
-    ax3.legend(title="N_present", fontsize=13, title_fontsize=14)
-    ax3.axhline(0, color="black", linestyle="dotted", linewidth=1)
+    ax.set_xscale("log")
+    ax.set_xlabel("−β (log scale)", fontsize=22)
+    ax.set_ylabel(y_label, fontsize=22)
+    ax.set_title("Exponential decline", fontsize=24)
+    ax.grid(True, which='both', ls='--', linewidth=0.5)
+    ax.legend(title="N_present" if legend_title is None else legend_title, fontsize=17, title_fontsize=18)
+    ax.axhline(0, color="black", linestyle="dotted", linewidth=1)
 
-    # MIDDLE RIGHT: Bottleneck model
+
+def _plot_metric_summary_bottleneck(ax, df_bottleneck, metric, colors, y_label, legend_title=None):
+    bottleneck_df = df_bottleneck.copy()
     bottleneck_df["bottleneck_duration"] = bottleneck_df["t_bottleneck_end"] - bottleneck_df["t_bottleneck_start"]
+    N_lows = sorted(bottleneck_df["N_low"].unique())
+
     for i, N_low in enumerate(N_lows):
         df_Nlow = bottleneck_df[bottleneck_df["N_low"] == N_low].sort_values("t_bottleneck_end")
-        ax4.plot(
+        ax.plot(
             df_Nlow["bottleneck_duration"],
             df_Nlow[metric],
             marker="o",
@@ -771,80 +789,154 @@ def plot_metric_summary(df_const, df_exp, df_declining, df_bottleneck, title, me
             color=colors[i % len(colors)]
         )
 
-    ax4.set_xlabel("Bottleneck duration [years]", fontsize=16)
-    ax4.set_ylabel(f"{metric} [years]", fontsize=16)
-    ax4.set_title("Population with bottleneck", fontsize=18)
-    ax4.grid(True, which='both', ls='--', linewidth=0.5)
-    ax4.legend(title="N_low", fontsize=13, title_fontsize=14)
-    ax4.axhline(0, color="black", linestyle="dotted", linewidth=1)
+    ax.set_xlabel("Bottleneck duration [years]", fontsize=22)
+    ax.set_ylabel(y_label, fontsize=22)
+    ax.set_title("Population bottleneck", fontsize=24)
+    ax.grid(True, which='both', ls='--', linewidth=0.5)
+    ax.legend(title="N_low" if legend_title is None else legend_title, fontsize=17, title_fontsize=18)
+    ax.axhline(0, color="black", linestyle="dotted", linewidth=1)
 
-    for axis in [ax, ax2, ax3, ax4]:
-        axis.tick_params(axis='both', which='major', labelsize=14)
 
+def plot_metric_summary(title, df_const=None, df_exp=None, df_declining=None, df_bottleneck=None, metric="mode_shift", y_label=None, save_path=None, legend_title=None):
+    # Define custom colors: shades of purple/pink, starting from the same purple used in
+    # plot_pathogen_error_summary (so the matching line has the same color), getting lighter
+    colors = [
+        "#80557e", "#d991b4", "#f2c4d8", "#fbe6f0",
+    ]
+
+    # Exponential panel: purple needs to be the 2nd line, so add a darker shade before it
+    # and drop the lightest shade
+    exp_colors = [
+        "#4b3866", "#80557e", "#d991b4", "#f2c4d8",
+    ]
+
+    y_label = f"{metric} [years]" if y_label is None else y_label
+
+    # Only include tiles for the DataFrames that were provided
+    panels = []
+    if df_const is not None:
+        panels.append((df_const, _plot_metric_summary_const, colors))
+    if df_exp is not None:
+        panels.append((df_exp, _plot_metric_summary_exp, exp_colors))
+    if df_declining is not None:
+        panels.append((df_declining, _plot_metric_summary_declining, colors))
+    if df_bottleneck is not None:
+        panels.append((df_bottleneck, _plot_metric_summary_bottleneck, colors))
+
+    if not panels:
+        raise ValueError("At least one of df_const, df_exp, df_declining, df_bottleneck must be provided.")
+
+    # Create subplots
+    fig, axes = plt.subplots(1, len(panels), figsize=(7 * len(panels), 6), sharey=False)
+    if len(panels) == 1:
+        axes = [axes]
+
+    for ax, (df, plot_fn, panel_colors) in zip(axes, panels):
+        plot_fn(ax, df, metric, panel_colors, y_label, legend_title)
+        ax.tick_params(axis='both', which='major', labelsize=18)
 
     # Set overall title
-    #fig.suptitle(title, fontsize=16)
+    #fig.suptitle(title, fontsize=28)
     plt.tight_layout(rect=[0, 0, 1, 0.95])
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()
 
-def plot_pathogen_error_summary(df_const, df_growth, df_decline, df_bottleneck, title, error_col="mode_shift"):
-    colors = [
-        "#a6444f","#b5d2f2", "#7394c2", "#397398"]
+def plot_pathogen_error_summary(title, df_const=None, df_growth=None, df_decline=None, df_bottleneck=None, error_col="mode_shift", y_label=None, save_path=None, legend_position="in"):
+    """
+    legend_position (str): Where to place the legend. "in" (default) puts a legend in every
+        subplot. "below" puts a single shared legend below the whole figure. "none" hides the
+        legend entirely.
+    """
+    if legend_position not in ("in", "below", "none"):
+        raise ValueError(f"legend_position must be 'in', 'below', or 'none', got {legend_position!r}")
 
-    # Configs for each subplot
-    plot_configs = [
-        {
+    colors = [
+        "#a6444f", "#80557e", "#7394c2", "#397398",
+    ]
+
+    y_label = error_col if y_label is None else y_label
+
+    # Configs for each subplot, only included if the corresponding df is provided
+    plot_configs = []
+
+    if df_const is not None:
+        plot_configs.append({
             "df": df_const,
             "x_col": "N",
             "x_label": "Population size N (log scale)",
-            "title": "Constant population",
+            "title": "Constant population size",
             "xscale": "log",
-        },
-        {
+        })
+
+    if df_growth is not None:
+        plot_configs.append({
             "df": df_growth,
             "x_col": "beta",
-            "x_label": "Transmission rate β (log scale)",
+            "x_label": "Growth rate β (log scale)",
             "title": "Exponential growth",
             "xscale": "log",
-        },
-        {
+        })
+
+    if df_decline is not None:
+        plot_configs.append({
             "df": df_decline.assign(neg_beta=lambda d: -d["beta"]),
             "x_col": "neg_beta",
             "x_label": "−β (log scale)",
             "title": "Exponential decline",
             "xscale": "log",
-        },
-        {
-            "df": df_bottleneck,
-            "x_col": "t_bottleneck_end",
-            "x_label": "Bottleneck end time",
-            "title": "Bottleneck model",
-            "xscale": "linear",
-        },
-    ]
+        })
 
-    pathogens = sorted(df_const["pathogen"].unique())
+    if df_bottleneck is not None:
+        plot_configs.append({
+            "df": df_bottleneck.assign(bottleneck_duration=lambda d: d["t_bottleneck_end"] - d["t_bottleneck_start"]),
+            "x_col": "bottleneck_duration",
+            "x_label": "Bottleneck duration [years]",
+            "title": "Population bottleneck",
+            "xscale": "linear",
+        })
+
+    if not plot_configs:
+        raise ValueError("At least one of df_const, df_growth, df_decline, df_bottleneck must be provided.")
+
+    pathogens = sorted(plot_configs[0]["df"]["pathogen"].unique())
 
     # Create subplots with shared y-axis
-    fig, axes = plt.subplots(1, 4, figsize=(30, 6), sharey=True)
+    fig, axes = plt.subplots(1, len(plot_configs), figsize=(7.5 * len(plot_configs), 6), sharey=True)
+    if len(plot_configs) == 1:
+        axes = [axes]
 
+    handles, labels = [], []
     for ax, config in zip(axes, plot_configs):
         df = config["df"]
         x_col = config["x_col"]
 
         for i, pathogen in enumerate(pathogens):
             df_p = df[df["pathogen"] == pathogen].sort_values(x_col)
-            ax.plot(df_p[x_col], df_p[error_col], marker="o", color=colors[i % len(colors)], label=pathogen)
+            line, = ax.plot(df_p[x_col], df_p[error_col], marker="o", color=colors[i % len(colors)], label=pathogen)
+            if ax is axes[0]:
+                handles.append(line)
+                labels.append(pathogen)
 
         ax.set_xscale(config["xscale"])
-        ax.set_xlabel(config["x_label"], fontsize=16)
-        ax.set_title(config["title"], fontsize=18)
+        ax.set_xlabel(config["x_label"], fontsize=22)
+        ax.set_title(config["title"], fontsize=24)
         ax.grid(True, which='both', ls='--', linewidth=0.5)
         ax.axhline(0, color="black", linestyle="dotted", linewidth=1)
         ax.tick_params(labelleft=True)  # ensure y-axis ticks are shown for each
-        ax.tick_params(axis='both', which='major', labelsize=14)
-        ax.set_ylabel(error_col, fontsize=16)
-        ax.legend(title="Pathogen", fontsize=13, title_fontsize=14)
+        ax.tick_params(axis='both', which='major', labelsize=18)
+        ax.set_ylabel(y_label, fontsize=22)
+        if legend_position == "in":
+            ax.legend(title="Mutations per genome per year", fontsize=17, title_fontsize=18)
 
-    fig.suptitle(title, fontsize=22)
+    if legend_position == "below":
+        fig.legend(
+            handles, labels, title="Mutations per genome per year",
+            loc="upper center", bbox_to_anchor=(0.5, 0.0),
+            ncol=1, fontsize=18, title_fontsize=20
+        )
+
+    fig.suptitle(title, fontsize=28)
+    if save_path is not None:
+        plt.savefig(save_path, format="pdf", bbox_inches="tight")
     plt.show()

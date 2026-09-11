@@ -2,36 +2,31 @@ import numpy as np
 from scipy.stats import wasserstein_distance
 from scipy.integrate import cumulative_trapezoid
 
-def calculate_rel_wasserstein_dist(t_vec, distr1, distr2):
+def calculate_wasserstein_dist(t_vec, distr1, distr2):
     """
-    Calculate the relative Wasserstein distance between two distributions.
-    Normalizing is done by the expeceted time of the second distribution.
-    
+    Calculate the Wasserstein distance between two distributions.
+
     Parameters:
     t_vec (np.ndarray): Vector of tMRCA values.
     distr1 (np.ndarray): First distribution (e.g., posterior).
     distr2 (np.ndarray): Second distribution (e.g., likelihood).
-    
+
     Returns:
-    float: Relative Wasserstein distance.
+    float: Wasserstein distance.
     """
-    
+
     # Normalize the distributions
     distr1_norm = distr1 / np.trapezoid(distr1, t_vec)
     distr2_norm = distr2 / np.trapezoid(distr2, t_vec)
-    
+
     # Calculate the Wasserstein distance
     w_dist = wasserstein_distance(t_vec, t_vec, u_weights=distr1_norm, v_weights=distr2_norm)
 
-    expected_t = np.trapezoid(t_vec * distr2_norm, t_vec)
-    rel_w_dist = w_dist / expected_t if expected_t > 0 else np.nan
-    
-    return rel_w_dist
+    return w_dist
 
-def calculate_rel_wasserstein2_dist(t_vec, distr1, distr2):
+def calculate_wasserstein2_dist(t_vec, distr1, distr2):
     """
-    Calculate the relative 2nd-order Wasserstein distance (W2) between two distributions.
-    Normalized by the expected tMRCA of distr2.
+    Calculate the 2nd-order Wasserstein distance (W2) between two distributions.
 
     Parameters:
     t_vec (np.ndarray): Vector of tMRCA values.
@@ -39,7 +34,7 @@ def calculate_rel_wasserstein2_dist(t_vec, distr1, distr2):
     distr2 (np.ndarray): Second distribution (e.g., likelihood).
 
     Returns:
-    float: Relative W2 distance.
+    float: W2 distance.
     """
     # Normalize to get proper PDFs
     distr1_norm = distr1 / np.trapezoid(distr1, t_vec)
@@ -60,11 +55,7 @@ def calculate_rel_wasserstein2_dist(t_vec, distr1, distr2):
     w2_squared = np.mean((q1 - q2) ** 2)
     w2 = np.sqrt(w2_squared)
 
-    # Normalize by mean of second distribution
-    expected_t = np.trapezoid(t_vec * distr2_norm, t_vec)
-    rel_w2 = w2 / expected_t if expected_t > 0 else np.nan
-
-    return rel_w2
+    return w2
 
 
 def calculate_rel_mode_shift(t_vec, distr1, distr2, abs_value=True):
